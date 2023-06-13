@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Presentation Explainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: darkgreen;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 0;
+        }
+
+        .file-upload {
+            margin-bottom: 20px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .response-message {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .status-section {
+            margin-top: 40px;
+        }
+
+        .status-button {
+            margin-top: 20px;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        PRESENTATION EXPLAINER
+    </div>
+
+    <div class="container">
+        <h1>Upload a File</h1>
+        <div class="file-upload">
+            <input type="file" id="fileInput">
+            <button class="button" id="uploadButton">Upload</button>
+        </div>
+        <div class="response-message" id="responseMessage"></div>
+	
+        <div class="status-section">
+            <h1>Status of File</h1>
+            <input type="text" id="fileUid">
+            <button class="button status-button" id="statusButton">Show</button>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </div>
+
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const responseMessage = document.getElementById('responseMessage');
+
+        uploadButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            axios.post('/upload', formData)
+                .then(response => {
+                    responseMessage.textContent = response.data.uid;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+		
+        const fileUid = document.getElementById('fileUid');
+        const statusButton = document.getElementById('statusButton');
+        const statusMessage = document.getElementById('statusMessage');
+        
+		statusButton.addEventListener('click', () => {
+            const uid = fileUid.value;
+ 
+             axios.get(`/status/${uid}`)
+        .then(response => {
+            const data = response.data;
+            const formattedData = formatJSON(data);
+            const content = formatContent(formattedData);
+            statusMessage.innerHTML = content;
+        })
+		.catch(error => {
+		    if (error.response && error.response.status === 404) {
+                const errorMessage = '404- File status not found';
+                console.error('Error 404:', errorMessage);
+                statusMessage.innerHTML = errorMessage;
+			} else {
+            console.error('Error:', error);
+			}
+		});
+
+});
+
+function formatJSON(data) {
+    if (Array.isArray(data)) {
+        return data.map(item => formatJSON(item));
+    } else if (typeof data === 'object' && data !== null) {
+        const formattedObject = {};
+        for (let key in data) {
+            formattedObject[key] = formatJSON(data[key]);
+        }
+        return formattedObject;
+    } else {
+        return data;
+    }
+}
+
+function formatContent(data) {
+    if (Array.isArray(data)) {
+        let content = '';
+        for (let item of data) {
+            content += formatContent(item);
+        }
+        return content;
+    } else if (typeof data === 'object' && data !== null) {
+        let content = '';
+        for (let key in data) {
+            content += `${key}: ${formatContent(data[key])}<br>`;
+        }
+        return content;
+    } else {
+        return data;
+    }
+}
+    </script>
+</body>
+</html>
