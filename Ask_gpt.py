@@ -1,7 +1,7 @@
 import openai
 import aiohttp
 
-openai.api_key = "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"  # enter your key
+openai.api_key = "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"  # enter your key
 
 
 async def send_gpt_request(user_message: str):
