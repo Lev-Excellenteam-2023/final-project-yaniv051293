@@ -85,6 +85,7 @@ def process_presentation(file_path):
 
 
 def main():
+    logging.basicConfig(filename='explainer.log', level=logging.INFO, format='%(asctime)s %(message)s')
     while True:
         for file_name in os.listdir(UPLOAD_FOLDER):
             file_path = os.path.join(UPLOAD_FOLDER, file_name)  # Create the full file path

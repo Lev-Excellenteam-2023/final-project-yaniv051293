@@ -1,8 +1,10 @@
 import openai
 import aiohttp
+import os
+from dotenv import load_dotenv
 
-openai.api_key = "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"  # enter your key
-
+load_dotenv()  # Load variables from .env file
+openai.api_key= os.getenv("API_KEY")  # enter your key
 
 async def send_gpt_request(user_message: str):
     """

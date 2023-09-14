@@ -1,3 +1,4 @@
+import logging
 import json
 import re
 import uuid
@@ -33,6 +34,7 @@ def upload():
     filename = '.'.join([original_filename[0], timestamp, uid, original_filename[1]])
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
+    logging.info("file saved successfully")
     return jsonify({'uid': uid}), 200
 
 
@@ -46,7 +48,6 @@ def status(uid):
         file_details = file_name.split('.')
         file_status = 'done'
         explanation = read_json_file(output_file_path)
-        #print(explanation)
     else:
         load_file_path, file_name = find_file_by_uid(uid, 'UPLOAD_FOLDER')
         if load_file_path:
@@ -84,4 +85,5 @@ def build_response(filename, timestamp, file_status, explanation):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='api.log', level=logging.INFO, format='%(asctime)s %(message)s')
     app.run()
